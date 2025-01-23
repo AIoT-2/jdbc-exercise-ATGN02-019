@@ -9,6 +9,8 @@ CREATE TABLE `jdbc_students`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='학생';
 
+/* ================================================================================================================== */
+
 /* install */
 INSERT INTO jdbc_students(id, name, gender, age, created_at) VALUES(?, ?, ?, ?, ?);
 
