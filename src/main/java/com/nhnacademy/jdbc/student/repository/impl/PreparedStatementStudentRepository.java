@@ -44,6 +44,7 @@ public class PreparedStatementStudentRepository implements StudentRepository {
              PreparedStatement preparedStatement = connection.prepareStatement(query)
         ) {
             preparedStatement.setString(1, id);
+            preparedStatement.execute();
             ResultSet resultSet = preparedStatement.getResultSet();
 
             Student student = null;

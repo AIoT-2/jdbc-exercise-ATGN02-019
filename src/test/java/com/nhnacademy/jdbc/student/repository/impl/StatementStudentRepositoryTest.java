@@ -19,7 +19,7 @@ import java.util.Random;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class StatementStudentRepositoryTest {
 
-    public static StudentRepository studentRepository;
+    private static StudentRepository studentRepository;
 
     @BeforeAll
     static void setUp() {
@@ -60,7 +60,6 @@ class StatementStudentRepositoryTest {
                 () -> Assertions.assertEquals("학생1", studentOptional.get().getName()),
                 () -> Assertions.assertEquals(Student.Gender.M, studentOptional.get().getGender())
         );
-
     }
 
     @Test
