@@ -62,6 +62,7 @@ class StatementUserRepositoryTest {
         String id = "user1";
         String password = "' or '1'='1";
 
+        // 전형적인 SQL 인젝션 보안 문제
         Optional<User> userOptional = userRepository.findByUserIdAndUserPassword(id, password);
 
         log.debug("userId: {}", userOptional.get().getUserId());
