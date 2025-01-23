@@ -1,6 +1,5 @@
-package com.nhnacademy.jdbc;
+package com.nhnacademy.jdbc.util;
 
-import com.nhnacademy.jdbc.util.DbUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
