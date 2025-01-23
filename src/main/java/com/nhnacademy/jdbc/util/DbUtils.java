@@ -1,4 +1,4 @@
-package com.nhnacademy.jdbc;
+package com.nhnacademy.jdbc.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
