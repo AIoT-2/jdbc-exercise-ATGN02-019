@@ -56,6 +56,8 @@ public class PreparedStatementStudentRepository implements StudentRepository {
 
                 student = new Student(id, name, gender, age, localDateTime);
             }
+
+            resultSet.close();
             return Optional.ofNullable(student);
         } catch (SQLException e) {
             log.error("{}", e.getMessage(), e);
