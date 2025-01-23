@@ -50,6 +50,8 @@ public class StatementStudentRepository implements StudentRepository {
             return Optional.ofNullable(student);
         } catch (SQLException e) {
             log.error("{}", e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("{}", e.getMessage(), e);
         }
         return Optional.empty();
     }
