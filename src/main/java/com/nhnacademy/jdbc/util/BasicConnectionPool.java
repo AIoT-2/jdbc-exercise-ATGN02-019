@@ -1,6 +1,7 @@
 package com.nhnacademy.jdbc.util;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -24,34 +25,33 @@ public class BasicConnectionPool {
 
     public BasicConnectionPool(String driverClassName, String jdbcUrl, String username, String password, int maximumPoolSize) {
         if (isNullOrEmpty(driverClassName)) {
-
+            throw new IllegalArgumentException("driverClassName is Null!");
         }
         if (isNullOrEmpty(jdbcUrl)) {
-
+            throw new IllegalArgumentException("jdbcUrl is Null!");
         }
         if (isNullOrEmpty(username)) {
-
+            throw new IllegalArgumentException("username is Null!");
         }
         if (isNullOrEmpty(password)) {
-
+            throw new IllegalArgumentException("password is Null!");
         }
-
+        if (maximumPoolSize < 1) {
+            throw new IllegalArgumentException("maximumPoolSize is out of Range!");
+        }
         this.driverClassName = driverClassName;
         this.jdbcUrl = jdbcUrl;
         this.username = username;
         this.password = password;
         this.maximumPoolSize = maximumPoolSize;
-
-        connections = new LinkedList<>();
-
+        this.connections = new LinkedList<>();
         checkDriver();
         initialize();
     }
 
     private void checkDriver() {
-        //todo#1 driverClassName에 해당하는 class가 존재하는지 check합니다.
-        //존재하지 않는다면 RuntimeException 예외처리.
         try {
+            // com.mysql.cj.jdbc.Driver
             Class.forName(driverClassName);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -59,38 +59,43 @@ public class BasicConnectionPool {
     }
 
     private void initialize() {
-        //todo#2 maximumPoolSize만큼 Connection 객체를 생성해서 Connection Pool에 등록합니다.
         for (int n = 0; n < maximumPoolSize; n++) {
-            connections.add(DbUtils.getConnection());
+            try {
+                connections.add(DriverManager.getConnection(jdbcUrl, username, password));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     public Connection getConnection() throws InterruptedException {
-        //todo#3 Connection Pool에 connection이 존재하면 반환하고 비어있다면 Connection Pool에 Connection이 존재할 때 까지 대기합니다.
-        while (connections.isEmpty()) {
-            wait();
+        synchronized (this) {
+            while (connections.isEmpty()) {
+                wait();
+            }
+            // if (connections.peek().isClosed()) {}
+            return connections.poll();
         }
-
-        notify();
-        return connections.poll();
     }
 
     public void releaseConnection(Connection connection) {
-        //todo#4 작업을 완료한 Connection 객체를 Connection Pool에 반납 합니다.
-
-        // TODO: Multi-Thread 환경에서 동일한 객체를 참조하다가 한꺼번에 반납한다면?
+        // Multi-Thread 환경에서 동일한 객체를 참조하다가 한꺼번에 반납한다면?
         if (Objects.isNull(connection)) {
             throw new IllegalArgumentException("connection is Null!");
+        }
+        synchronized (this) {
+            connections.add(connection);
+            notifyAll();
         }
     }
 
     public int getUsedConnectionSize() {
-        //todo#5 현재 사용중인 Connection 객체 수를 반환합니다.
-        return connections.size();
+        synchronized (this) {
+            return maximumPoolSize - connections.size();
+        }
     }
 
     public void destroy() throws SQLException {
-        //todo#6 Connection Pool에 등록된 Connection을 close 합니다.
         for (Connection connection : connections) {
             if (connection.isClosed()) continue;
             connection.close();

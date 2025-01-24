@@ -16,17 +16,27 @@ import java.sql.SQLException;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class BasicConnectionPoolTest {
 
-    static BasicConnectionPool basicConnectionPool;
-    static Connection connection1;
-    static Connection connection2;
-    static Connection connection3;
-    static Connection connection4;
-    static Connection connection5;
+    private static BasicConnectionPool basicConnectionPool;
+
+    private static Connection connection1;
+
+    private static Connection connection2;
+
+    private static Connection connection3;
+
+    private static Connection connection4;
+
+    private static Connection connection5;
 
     @BeforeAll
     static void setUp() {
         //todo#0 - jdbcUrl, username, password를 설정하세요
-        basicConnectionPool = new BasicConnectionPool(com.mysql.cj.jdbc.Driver.class.getName(),"","","",5);
+        basicConnectionPool = new BasicConnectionPool(
+                com.mysql.cj.jdbc.Driver.class.getName(),
+                "jdbc:mysql://220.67.216.14:13306/nhn_academy_219",
+                "nhn_academy_219",
+                "cP8zjqvd!",
+                5);
     }
 
     @AfterAll
@@ -37,9 +47,9 @@ class BasicConnectionPoolTest {
     @Test
     @Order(0)
     @DisplayName("Driver not found Exception")
-    void init(){
+    void init() {
         Assertions.assertThrows(RuntimeException.class,
-            ()-> new BasicConnectionPool("org.mariadb.jdbc.Driver","jdbcUrl","userName","password",5)
+                () -> new BasicConnectionPool("org.mariadb.jdbc.Driver", "jdbcUrl", "userName", "password", 5)
         );
     }
 
@@ -51,10 +61,10 @@ class BasicConnectionPoolTest {
         connection2 = basicConnectionPool.getConnection();
         connection3 = basicConnectionPool.getConnection();
         Assertions.assertAll(
-                ()->Assertions.assertTrue(connection1.isValid(1000)),
-                ()->Assertions.assertTrue(connection2.isValid(1000)),
-                ()->Assertions.assertTrue(connection3.isValid(1000)),
-                ()->Assertions.assertEquals(basicConnectionPool.getUsedConnectionSize(),3)
+                () -> Assertions.assertTrue(connection1.isValid(1000)),
+                () -> Assertions.assertTrue(connection2.isValid(1000)),
+                () -> Assertions.assertTrue(connection3.isValid(1000)),
+                () -> Assertions.assertEquals(3, basicConnectionPool.getUsedConnectionSize())
         );
     }
 
@@ -68,9 +78,8 @@ class BasicConnectionPoolTest {
         Connection connection6 = basicConnectionPool.getConnection();
 
         Assertions.assertAll(
-                ()->Assertions.assertEquals(basicConnectionPool.getUsedConnectionSize(),5)
+                () -> Assertions.assertEquals(5, basicConnectionPool.getUsedConnectionSize())
         );
-
     }
 
     @Test
@@ -81,6 +90,6 @@ class BasicConnectionPoolTest {
         basicConnectionPool.releaseConnection(connection2);
         basicConnectionPool.releaseConnection(connection3);
 
-        Assertions.assertEquals(basicConnectionPool.getUsedConnectionSize(),0);
+        Assertions.assertEquals(0, basicConnectionPool.getUsedConnectionSize());
     }
 }
