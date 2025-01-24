@@ -9,7 +9,7 @@ import java.util.Queue;
 
 import static com.nhnacademy.jdbc.util.StringUtils.isNullOrEmpty;
 
-public class BasicConnectionPool {
+public final class BasicConnectionPool {
 
     private final String driverClassName;
 
