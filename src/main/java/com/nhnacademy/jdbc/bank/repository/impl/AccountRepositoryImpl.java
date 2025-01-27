@@ -8,29 +8,29 @@ import java.util.Optional;
 
 public class AccountRepositoryImpl implements AccountRepository {
 
+    @Override
+    public int save(Connection connection, Account account) {
+        //todo#2 계좌-등록, executeUpdate() 결과를 반환 합니다.
+        String query = "";
+        return 0;
+    }
+
+    @Override
     public Optional<Account> findByAccountNumber(Connection connection, long accountNumber) {
         //todo#1 계좌-조회
         return Optional.empty();
     }
 
     @Override
-    public int save(Connection connection, Account account) {
-        //todo#2 계좌-등록, executeUpdate() 결과를 반환 합니다.
-        return 0;
-    }
-
-    @Override
     public int countByAccountNumber(Connection connection, long accountNumber) {
         int count = 0;
         //todo#3 select count(*)를 이용해서 계좌의 개수를 count해서 반환
-
         return count;
     }
 
     @Override
     public int deposit(Connection connection, long accountNumber, long amount) {
         //todo#4 입금, executeUpdate() 결과를 반환 합니다.
-
         return 0;
     }
 

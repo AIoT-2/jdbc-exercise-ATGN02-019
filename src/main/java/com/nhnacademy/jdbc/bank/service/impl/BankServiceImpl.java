@@ -5,6 +5,7 @@ import com.nhnacademy.jdbc.bank.repository.AccountRepository;
 import com.nhnacademy.jdbc.bank.service.BankService;
 
 import java.sql.Connection;
+import java.util.Optional;
 
 public class BankServiceImpl implements BankService {
 
@@ -15,16 +16,23 @@ public class BankServiceImpl implements BankService {
     }
 
     @Override
-    public Account getAccount(Connection connection, long accountNumber) {
-        //todo#11 계좌-조회
-
-        return null;
+    public void createAccount(Connection connection, Account account) {
+        //todo#12 계좌-등록
+        accountRepository.save(connection, account);
     }
 
     @Override
-    public void createAccount(Connection connection, Account account) {
-        //todo#12 계좌-등록
+    public Account getAccount(Connection connection, long accountNumber) {
+        //todo#11 계좌-조회
+        Optional<Account> optional = accountRepository.findByAccountNumber(connection, accountNumber);
+        return optional.orElse(null);
+    }
 
+    @Override
+    public boolean isExistAccount(Connection connection, long accountNumber) {
+        //todo#16 Account가 존재하면 true , 존재하지 않다면 false
+
+        return false;
     }
 
     @Override
@@ -45,13 +53,6 @@ public class BankServiceImpl implements BankService {
     public void transferAmount(Connection connection, long accountNumberFrom, long accountNumberTo, long amount) {
         //todo#15 계좌 이체 accountNumberFrom -> accountNumberTo 으로 amount만큼 이체
 
-    }
-
-    @Override
-    public boolean isExistAccount(Connection connection, long accountNumber) {
-        //todo#16 Account가 존재하면 true , 존재하지 않다면 false
-
-        return false;
     }
 
     @Override
