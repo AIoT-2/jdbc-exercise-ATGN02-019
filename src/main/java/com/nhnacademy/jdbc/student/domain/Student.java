@@ -70,8 +70,8 @@ public class Student {
         return createdAt;
     }
 
-    public String getCreatedAtToString() {
+    /*public String getCreatedAtToString() {
         String pattern = "yyyy-MM-dd HH:mm:ss";
         return getCreatedAt().format(DateTimeFormatter.ofPattern(pattern));
-    }
+    }*/
 }

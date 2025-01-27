@@ -2,7 +2,6 @@ package com.nhnacademy.jdbc.student.repository.impl;
 
 import com.nhnacademy.jdbc.student.domain.Student;
 import com.nhnacademy.jdbc.student.repository.StudentRepository;
-import com.nhnacademy.jdbc.util.DbUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -14,14 +13,13 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
-public class PreparedStatementStudentRepository implements StudentRepository {
+public class StudentRepositoryImpl implements StudentRepository {
 
     @Override
-    public int save(Student student) {
+    public int save(Connection connection, Student student) {
         String query = "INSERT INTO jdbc_students(id, name, gender, age, created_at) VALUES(?, ?, ?, ?, ?)";
 
-        try (Connection connection = DbUtils.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
         ) {
             preparedStatement.setString(1, student.getId());
             preparedStatement.setString(2, student.getName());
@@ -37,11 +35,10 @@ public class PreparedStatementStudentRepository implements StudentRepository {
     }
 
     @Override
-    public Optional<Student> findById(String id) {
+    public Optional<Student> findById(Connection connection, String id) {
         String query = "SELECT * FROM jdbc_students WHERE id=?";
 
-        try (Connection connection = DbUtils.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
         ) {
             preparedStatement.setString(1, id);
             preparedStatement.execute();
@@ -52,15 +49,13 @@ public class PreparedStatementStudentRepository implements StudentRepository {
                 String name = resultSet.getString("name");
                 Student.Gender gender = Student.Gender.valueOf(resultSet.getString("gender"));
                 int age = resultSet.getInt("age");
-                LocalDateTime localDateTime = resultSet.getTimestamp("created_at").toLocalDateTime();
+                LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
-                student = new Student(id, name, gender, age, localDateTime);
+                student = new Student(id, name, gender, age, createdAt);
             }
 
             resultSet.close();
             return Optional.ofNullable(student);
-        } catch (SQLException e) {
-            log.error("{}", e.getMessage(), e);
         } catch (Exception e) {
             log.error("{}", e.getMessage(), e);
         }
@@ -68,11 +63,10 @@ public class PreparedStatementStudentRepository implements StudentRepository {
     }
 
     @Override
-    public int update(Student student) {
+    public int update(Connection connection, Student student) {
         String query = "UPDATE jdbc_students SET name=?, gender=?, age=? WHERE id=?";
 
-        try (Connection connection = DbUtils.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
         ) {
             preparedStatement.setString(1, student.getName());
             preparedStatement.setString(2, student.getGender().toString());
@@ -80,18 +74,17 @@ public class PreparedStatementStudentRepository implements StudentRepository {
             preparedStatement.setString(4, student.getId());
 
             return preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error("{}", e.getMessage(), e);
         }
         return 0;
     }
 
     @Override
-    public int deleteById(String id) {
+    public int deleteById(Connection connection, String id) {
         String query = "DELETE FROM jdbc_students WHERE id=?";
 
-        try (Connection connection = DbUtils.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
         ) {
             preparedStatement.setString(1, id);
 
