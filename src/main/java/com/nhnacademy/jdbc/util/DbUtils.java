@@ -20,6 +20,7 @@ public final class DbUtils {
         String username = "nhn_academy_219";
         String password = "cP8zjqvd!";
 
+        // TODO: Connection-Pool 기반으로 동작합니다.
         BasicDataSource basicDataSource = new BasicDataSource();
 
         basicDataSource.setUrl(String.format("jdbc:mysql://%s:%s/%s", ip, port, database));
