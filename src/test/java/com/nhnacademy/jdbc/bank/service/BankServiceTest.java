@@ -7,13 +7,7 @@ import com.nhnacademy.jdbc.bank.exception.BalanceNotEnoughException;
 import com.nhnacademy.jdbc.bank.repository.impl.AccountRepositoryImpl;
 import com.nhnacademy.jdbc.bank.service.impl.BankServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -21,9 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
@@ -121,7 +113,7 @@ class BankServiceTest {
         Mockito.when(accountRepository.withdraw(any(), anyLong(), anyLong())).thenReturn(1);
 
         boolean result = bankService.withdrawAccount(null, Long.MAX_VALUE, 1_0000);
-        assertEquals(true, result);
+        assertTrue(result);
     }
 
     @Test
@@ -149,7 +141,6 @@ class BankServiceTest {
     @Order(10)
     @DisplayName("계좌이체")
     void accountTransfer() {
-
         Mockito.when(accountRepository.countByAccountNumber(any(), anyLong())).thenReturn(1);
         Mockito.when(accountRepository.findByAccountNumber(any(), anyLong())).thenReturn(Optional.of(new Account(8000L, "nhn아카데미", 10_0000L)));
         Mockito.when(accountRepository.withdraw(any(), anyLong(), anyLong())).thenReturn(1);
@@ -165,7 +156,7 @@ class BankServiceTest {
 
     @Test
     @Order(11)
-    @DisplayName("계좌이체 - 계좌가 존재하지 않느다면")
+    @DisplayName("계좌이체 - 계좌가 존재하지 않는다면")
     void accountTransfer_account_not_found() {
         Mockito.when(accountRepository.countByAccountNumber(any(), anyLong())).thenReturn(0);
         Assertions.assertThrows(AccountNotFoundException.class, () -> bankService.transferAmount(null, 8000L, 9000L, 1_0000L));

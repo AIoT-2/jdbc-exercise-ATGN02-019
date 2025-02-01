@@ -3,12 +3,12 @@ package com.nhnacademy.jdbc.bank.service.impl;
 import com.nhnacademy.jdbc.bank.domain.Account;
 import com.nhnacademy.jdbc.bank.exception.AccountAlreadyExistException;
 import com.nhnacademy.jdbc.bank.exception.AccountNotFoundException;
+import com.nhnacademy.jdbc.bank.exception.BalanceNotEnoughException;
 import com.nhnacademy.jdbc.bank.repository.AccountRepository;
 import com.nhnacademy.jdbc.bank.service.BankService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Optional;
 
 @Slf4j
@@ -22,69 +22,102 @@ public class BankServiceImpl implements BankService {
 
     @Override
     public void createAccount(Connection connection, Account account) {
+        if (isExistAccount(connection, account.getAccountNumber())) {
+            throw new AccountAlreadyExistException(account.getAccountNumber());
+        }
         try {
-            if (isExistAccount(connection, account.getAccountNumber())) {
-                throw new AccountAlreadyExistException(account.getAccountNumber());
+            int result = accountRepository.save(connection, account);
+            if (result < 1) {
+                throw new RuntimeException(
+                        String.format("failed to save Account: %d", account.getAccountNumber()));
             }
-            accountRepository.save(connection, account);
         } catch (Exception e) {
-            log.warn("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public Account getAccount(Connection connection, long accountNumber) {
         Optional<Account> optional = accountRepository.findByAccountNumber(connection, accountNumber);
-        return optional.orElse(null);
+        return optional.orElseThrow(() -> new AccountNotFoundException(accountNumber));
     }
 
     @Override
     public boolean isExistAccount(Connection connection, long accountNumber) {
-        int result = accountRepository.countByAccountNumber(connection, accountNumber);
-        return result != 0;
+        int count = accountRepository.countByAccountNumber(connection, accountNumber);
+        return count > 0;
     }
 
     @Override
     public boolean depositAccount(Connection connection, long accountNumber, long amount) {
-        //todo#13 예금, 계좌가 존재하는지 체크 -> 예금실행 -> 성공 true, 실패 false;
-        try {
-            if (!isExistAccount(connection, accountNumber)) {
-                throw new AccountNotFoundException(accountNumber);
-            }
-            connection.setAutoCommit(false);
-        } catch (Exception e) {
-            log.warn("{}", e.getMessage(), e);
+        if (!isExistAccount(connection, accountNumber)) {
+            throw new AccountNotFoundException(accountNumber);
         }
-        return false;
+        int result = accountRepository.deposit(connection, accountNumber, amount);
+        return result > 0;
     }
 
     @Override
     public boolean withdrawAccount(Connection connection, long accountNumber, long amount) {
-        //todo#14 출금, 계좌가 존재하는지 체크 ->  출금가능여부 체크 -> 출금실행, 성공 true, 실패 false 반환
-        try {
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-
+        if (!isExistAccount(connection, accountNumber)) {
+            throw new AccountNotFoundException(accountNumber);
         }
-        return false;
+        Account account = getAccount(connection, accountNumber);
+        if (!account.isWithdraw(amount)) {
+            throw new BalanceNotEnoughException(accountNumber);
+        }
+        int result = accountRepository.withdraw(connection, accountNumber, amount);
+        return result > 0;
     }
 
     @Override
     public void transferAmount(Connection connection, long accountNumberFrom, long accountNumberTo, long amount) {
-        //todo#15 계좌 이체 accountNumberFrom -> accountNumberTo 으로 amount 만큼 이체
+        // 존재 유무 체크
+        if (!isExistAccount(connection, accountNumberFrom)) {
+            throw new AccountNotFoundException(accountNumberFrom);
+        }
+        if (!isExistAccount(connection, accountNumberTo)) {
+            throw new AccountNotFoundException(accountNumberTo);
+        }
 
+        // 실제 계좌 체크
+        Account accountFrom = null;
+        Account accountTo = null;
+        try {
+            accountFrom = getAccount(connection, accountNumberFrom);
+            accountTo = getAccount(connection, accountNumberTo);
+        } catch (Exception e) {
+            throw new AccountNotFoundException(Long.parseLong(e.getMessage()));
+        }
+
+        // 잔액 체크
+        if (!accountFrom.isWithdraw(amount)) {
+            throw new BalanceNotEnoughException(accountNumberFrom);
+        }
+
+        // 실행
+        /*withdrawAccount(connection, accountNumberFrom, amount);
+        depositAccount(connection, accountNumberTo, amount);*/
+        int result1 = accountRepository.withdraw(connection, accountNumberFrom, amount);
+        if (result1 < 1) {
+            throw new RuntimeException("fail - withdraw: " + accountNumberFrom);
+        }
+
+        int result2 = accountRepository.deposit(connection, accountNumberTo, amount);
+        if (result2 < 1) {
+            throw new RuntimeException("fail - deposit: " + accountNumberTo);
+        }
     }
 
     @Override
     public void dropAccount(Connection connection, long accountNumber) {
-        try {
-            if (!isExistAccount(connection, accountNumber)) {
-                throw new AccountNotFoundException(accountNumber);
-            }
-        } catch (Exception e) {
-            log.warn("{}", e.getMessage(), e);
-            return;
+        if (!isExistAccount(connection, accountNumber)) {
+            throw new AccountNotFoundException(accountNumber);
         }
-        accountRepository.deleteByAccountNumber(connection, accountNumber);
+        int result = accountRepository.deleteByAccountNumber(connection, accountNumber);
+        if (result < 1) {
+            throw new RuntimeException(
+                    String.format("failed to delete Account: %d", accountNumber));
+        }
     }
 }

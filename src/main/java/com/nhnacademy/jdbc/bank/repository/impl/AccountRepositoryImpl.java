@@ -13,11 +13,19 @@ import java.util.Optional;
 @Slf4j
 public class AccountRepositoryImpl implements AccountRepository {
 
+    /**
+     * 계좌 등록
+     * 
+     * @param connection
+     * @param account
+     * @return
+     */
     @Override
     public int save(Connection connection, Account account) {
         String query = "INSERT INTO jdbc_account(account_number, name, balance) VALUES(?, ?, ?)";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setLong(1, account.getAccountNumber());
             preparedStatement.setString(2, account.getName());
             preparedStatement.setLong(3, account.getBalance());
@@ -29,23 +37,29 @@ public class AccountRepositoryImpl implements AccountRepository {
         }
     }
 
+    /**
+     * 계좌 정보 조회
+     *
+     * @param connection
+     * @param accountNumber
+     * @return
+     */
     @Override
     public Optional<Account> findByAccountNumber(Connection connection, long accountNumber) {
         String query = "SELECT name, balance FROM jdbc_account WHERE account_number=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setLong(1, accountNumber);
-            preparedStatement.execute();
-            ResultSet resultSet = preparedStatement.getResultSet();
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             Account account = null;
-            while (resultSet.next()) {
+            if (resultSet.next()) {
                 String name = resultSet.getString("name");
                 long balance = resultSet.getLong("balance");
 
                 account = new Account(accountNumber, name, balance);
             }
-
             resultSet.close();
             return Optional.ofNullable(account);
         } catch (Exception e) {
@@ -54,18 +68,25 @@ public class AccountRepositoryImpl implements AccountRepository {
         return Optional.empty();
     }
 
+    /**
+     * 계좌 존재 유무 확인
+     * 
+     * @param connection
+     * @param accountNumber
+     * @return
+     */
     @Override
     public int countByAccountNumber(Connection connection, long accountNumber) {
         int count = 0;
         String query = "SELECT COUNT(account_number) FROM jdbc_account WHERE account_number=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setLong(1, accountNumber);
-            preparedStatement.execute();
-            ResultSet resultSet = preparedStatement.getResultSet();
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-            while (resultSet.next()) {
-                 count = resultSet.getInt(1);
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
             }
             resultSet.close();
         } catch (SQLException e) {
@@ -74,11 +95,20 @@ public class AccountRepositoryImpl implements AccountRepository {
         return count;
     }
 
+    /**
+     * 입금
+     *
+     * @param connection
+     * @param accountNumber
+     * @param amount
+     * @return
+     */
     @Override
     public int deposit(Connection connection, long accountNumber, long amount) {
         String query = "UPDATE jdbc_account SET balance=balance+? WHERE account_number=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setLong(1, amount);
             preparedStatement.setLong(2, accountNumber);
 
@@ -89,11 +119,20 @@ public class AccountRepositoryImpl implements AccountRepository {
         return 0;
     }
 
+    /**
+     * 출금
+     *
+     * @param connection
+     * @param accountNumber
+     * @param amount
+     * @return
+     */
     @Override
     public int withdraw(Connection connection, long accountNumber, long amount) {
         String query = "UPDATE jdbc_account SET balance=balance-? WHERE account_number=? AND balance >= ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setLong(1, amount);
             preparedStatement.setLong(2, accountNumber);
             preparedStatement.setLong(3, amount);
@@ -105,11 +144,19 @@ public class AccountRepositoryImpl implements AccountRepository {
         return 0;
     }
 
+    /**
+     * 계좌 삭제
+     * 
+     * @param connection
+     * @param accountNumber
+     * @return
+     */
     @Override
     public int deleteByAccountNumber(Connection connection, long accountNumber) {
         String query = "DELETE FROM jdbc_account WHERE account_number=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setLong(1, accountNumber);
 
             return preparedStatement.executeUpdate();

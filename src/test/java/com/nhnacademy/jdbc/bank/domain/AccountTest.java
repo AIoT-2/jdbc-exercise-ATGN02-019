@@ -42,5 +42,4 @@ class AccountTest {
                 () -> Assertions.assertFalse(account.isWithdraw(20_0000L))
         );
     }
-
 }
