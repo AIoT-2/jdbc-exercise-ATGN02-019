@@ -18,20 +18,20 @@ import java.util.List;
 @Slf4j
 class ClubRegistrationRepositoryImplCRUDTest {
 
-    //todo#14 ClubRegistrationRepositoryImplCRUDTest Test Case가 통과할 수 있도록 ClubRegistrationRepositoryImpl 구현합니다.
+    private final StudentRepository studentRepository = new StudentRepositoryImpl();
 
-    StudentRepository studentRepository = new StudentRepositoryImpl();
-    ClubRegistrationRepository clubRegistrationRepository = new ClubRegistrationRepositoryImpl();
-    ClubRepository clubRepository = new ClubRepositoryImpl();
+    private final ClubRegistrationRepository clubRegistrationRepository = new ClubRegistrationRepositoryImpl();
 
-    Connection connection;
+    private final ClubRepository clubRepository = new ClubRepositoryImpl();
+
+    private Connection connection;
 
     @BeforeEach
     void setUp() throws SQLException {
         connection = DbUtils.getDataSource().getConnection();
         connection.setAutoCommit(false);
 
-        //데이터가 존재 한다면 원할한 테스트트 위해ㅔ서 삭제.
+        // 데이터가 존재 한다면 원할한 테스트트 위해서 삭제.
         clubRegistrationRepository.deleteByStudentIdAndClubId(connection, "s1", "c1");
 
         clubRepository.deleteByClubId(connection, "C1");
@@ -45,11 +45,11 @@ class ClubRegistrationRepositoryImplCRUDTest {
         Club club2 = new Club("c2", "java club");
         clubRepository.save(connection, club2);
 
-        //student 등록
+        // student 등록
         Student student = new Student("s1", "nhn아카데미", Student.Gender.M, 30);
         studentRepository.save(connection, student);
 
-        //학생,클럽 등록
+        // student, club 등록
         clubRegistrationRepository.save(connection, student.getId(), club1.getClubId());
     }
 
