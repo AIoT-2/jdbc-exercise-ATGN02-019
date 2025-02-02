@@ -16,8 +16,9 @@ import java.util.Random;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class StudentRepositoryImplTest {
 
-    public static StudentRepositoryImpl studentRepository;
-    public static Connection connection;
+    private static StudentRepositoryImpl studentRepository;
+
+    private static Connection connection;
 
     @BeforeAll
     static void setUp() throws SQLException {
@@ -26,31 +27,27 @@ class StudentRepositoryImplTest {
         connection.setAutoCommit(false);
 
         studentRepository = new StudentRepositoryImpl();
-        
         studentRepository.deleteAll(connection);
 
-
         Random random = new Random();
-        Iterator<Integer> iterator = random.ints(20,50).iterator();
-        for(int i=1; i<=10; i++){
-            String id="student" + i;
-            String name="학생" + i;
-            Student.GENDER gender = Student.GENDER.M;
-            int age =iterator.next();
-            Student student = new Student(id, name, gender,age);
-            studentRepository.deleteById(connection,id);
-            studentRepository.save(connection,student);
+        Iterator<Integer> iterator = random.ints(20, 50).iterator();
+        for (int i = 1; i <= 10; i++) {
+            String id = "student" + i;
+            String name = "학생" + i;
+            Student.Gender gender = Student.Gender.M;
+            int age = iterator.next();
+            Student student = new Student(id, name, gender, age);
+            studentRepository.deleteById(connection, id);
+            studentRepository.save(connection, student);
         }
-
-        studentRepository.deleteById(connection,"student100");
-
+        studentRepository.deleteById(connection, "student100");
     }
 
     @AfterAll
     static void release() throws SQLException {
         connection.rollback();
         // 사용한 connection은 반납
-        if(Objects.nonNull(connection)){
+        if (Objects.nonNull(connection)) {
             connection.close();
         }
     }
@@ -59,31 +56,30 @@ class StudentRepositoryImplTest {
     @Order(1)
     @DisplayName("insert student : student 100")
     void save() {
-        Student newStudent = new Student("student100","학생100", Student.GENDER.M,30);
-        int result = studentRepository.save(connection,newStudent);
-        Assertions.assertEquals(1,result);
+        Student newStudent = new Student("student100", "학생100", Student.Gender.M, 30);
+        int result = studentRepository.save(connection, newStudent);
+        Assertions.assertEquals(1, result);
     }
 
     @Test
     @Order(2)
     @DisplayName("findById-student1")
     void findById() {
-        Optional<Student> studentOptional = studentRepository.findById(connection,"student1");
-        log.info("student:{}", studentOptional.get());
+        Optional<Student> studentOptional = studentRepository.findById(connection, "student1");
+        log.info("student: {}", studentOptional.get());
 
         Assertions.assertAll(
-                ()->Assertions.assertEquals("student1",studentOptional.get().getId()),
-                ()->Assertions.assertEquals("학생1",studentOptional.get().getName()),
-                ()->Assertions.assertEquals(Student.GENDER.M,studentOptional.get().getGender())
+                () -> Assertions.assertEquals("student1", studentOptional.get().getId()),
+                () -> Assertions.assertEquals("학생1", studentOptional.get().getName()),
+                () -> Assertions.assertEquals(Student.Gender.M, studentOptional.get().getGender())
         );
-
     }
 
     @Test
     @Order(3)
     @DisplayName("findById-marco10000")
-    void findById_10000(){
-        Optional<Student> studentOptional = studentRepository.findById(connection,"student10000");
+    void findById_10000() {
+        Optional<Student> studentOptional = studentRepository.findById(connection, "student10000");
         Assertions.assertFalse(studentOptional.isPresent());
     }
 
@@ -92,29 +88,27 @@ class StudentRepositoryImplTest {
     @DisplayName("update : student1")
     void update() {
 
-        Student student = new Student("student1","엔에이치엔아카데미", Student.GENDER.F,30);
-        int result = studentRepository.update(connection,student);
+        Student student = new Student("student1", "엔에이치엔아카데미", Student.Gender.F, 30);
+        int result = studentRepository.update(connection, student);
         //Assume.assumeFalse(result>0);
 
-        Optional<Student> newStudent = studentRepository.findById(connection,student.getId());
+        Optional<Student> newStudent = studentRepository.findById(connection, student.getId());
 
         Assertions.assertAll(
-                ()->Assertions.assertEquals("student1",newStudent.get().getId()),
-                ()->Assertions.assertEquals("엔에이치엔아카데미",newStudent.get().getName()),
-                ()->Assertions.assertEquals(Student.GENDER.F,newStudent.get().getGender()),
-                ()->Assertions.assertEquals(30,newStudent.get().getAge())
+                () -> Assertions.assertEquals("student1", newStudent.get().getId()),
+                () -> Assertions.assertEquals("엔에이치엔아카데미", newStudent.get().getName()),
+                () -> Assertions.assertEquals(Student.Gender.F, newStudent.get().getGender()),
+                () -> Assertions.assertEquals(30, newStudent.get().getAge())
         );
-
     }
 
     @Test
     @Order(5)
     @DisplayName("delete : student1")
     void deleteById() {
-        String id="student1";
-        int result = studentRepository.deleteById(connection,id);
-        Optional<Student> studentDto = studentRepository.findById(connection,id);
+        String id = "student1";
+        int result = studentRepository.deleteById(connection, id);
+        Optional<Student> studentDto = studentRepository.findById(connection, id);
         Assertions.assertFalse(studentDto.isPresent());
     }
-
 }

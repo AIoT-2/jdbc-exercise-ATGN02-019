@@ -44,7 +44,7 @@ class ClubRegistrationRepositoryImplCRUDTest {
         clubRepository.save(connection, club2);
 
         //student 등록
-        Student student = new Student("s1","nhn아카데미", Student.GENDER.M,30);
+        Student student = new Student("s1","nhn아카데미", Student.Gender.M,30);
         studentRepository.save(connection,student);
 
         //학생,클럽 등록

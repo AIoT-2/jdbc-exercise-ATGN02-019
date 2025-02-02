@@ -2,43 +2,105 @@ package com.nhnacademy.jdbc.club.repository.impl;
 
 import com.nhnacademy.jdbc.club.domain.Club;
 import com.nhnacademy.jdbc.club.repository.ClubRepository;
+import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Connection;
+import java.sql.*;
 import java.util.Optional;
 
+@Slf4j
 public class ClubRepositoryImpl implements ClubRepository {
 
     @Override
-    public Optional<Club> findByClubId(Connection connection, String clubId) {
-        //todo#3 club 조회
+    public int save(Connection connection, Club club) {
+        String query = "INSERT INTO jdbc_club(club_id, club_name, club_created_at) VALUES(?, ?, ?)";
 
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
+            preparedStatement.setString(1, club.getClubId());
+            preparedStatement.setString(2, club.getClubName());
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(club.getClubCreatedAt()));
+
+            int result = preparedStatement.executeUpdate();
+            log.debug("save: {}", result);
+            return result;
+        } catch (SQLException e) {
+            log.error("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<Club> findByClubId(Connection connection, String clubId) {
+        String query = "SELECT club_name, club_created_at FROM jdbc_club WHERE club_id=?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, clubId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Club club = new Club(clubId,
+                        resultSet.getString("club_name"),
+                        resultSet.getTimestamp("club_created_at").toLocalDateTime()
+                );
+                return Optional.of(club);
+            }
+        } catch (SQLException e) {
+            log.error("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
         return Optional.empty();
     }
 
     @Override
-    public int save(Connection connection, Club club) {
-        //todo#4 club 생성, executeUpdate() 결과를 반환
-        return 0;
+    public int countByClubId(Connection connection, String clubId) {
+        int count = 0;
+        String query = "SELECT COUNT(club_id) FROM jdbc_club WHERE club_id=?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, clubId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            log.error("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        return count;
     }
 
     @Override
     public int update(Connection connection, Club club) {
-        //todo#5 club 수정, clubName을 수정합니다. executeUpdate()결과를 반환
+        String query = "UPDATE jdbc_club SET club_name=?, club_created_at=? WHERE club_id=?";
 
-        return 0;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, club.getClubName());
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(club.getClubCreatedAt()));
+            preparedStatement.setString(3, club.getClubId());
+
+            int result = preparedStatement.executeUpdate();
+            log.debug("update: {}", result);
+            return result;
+        } catch (SQLException e) {
+            log.error("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public int deleteByClubId(Connection connection, String clubId) {
-        //todo#6 club 삭제, executeUpdate()결과 반환
+        String query = "DELETE FROM jdbc_club WHERE club_id=?";
 
-        return 0;
-    }
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, clubId);
 
-    @Override
-    public int countByClubId(Connection connection, String clubId) {
-        //todo#7 clubId에 해당하는 club의 count를 반환
-
-        return 0;
+            int result = preparedStatement.executeUpdate();
+            log.debug("delete: {}", result);
+            return result;
+        } catch (SQLException e) {
+            log.error("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 }

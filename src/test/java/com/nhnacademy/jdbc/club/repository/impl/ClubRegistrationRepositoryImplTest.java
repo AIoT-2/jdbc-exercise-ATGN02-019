@@ -72,7 +72,7 @@ class ClubRegistrationRepositoryImplTest {
         //학생 10명 생성
         for(int i=0; i<10; i++){
             int age = intIterator.next();
-            Student student = new Student("s"+i,"학생"+i, i%2==1 ? Student.GENDER.M : Student.GENDER.F , age);
+            Student student = new Student("s"+i,"학생"+i, i%2==1 ? Student.Gender.M : Student.Gender.F , age);
             studentRepository.save(connection,student);
         }
 

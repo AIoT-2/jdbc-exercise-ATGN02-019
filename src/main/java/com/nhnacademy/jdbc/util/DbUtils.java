@@ -5,7 +5,8 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 import java.time.Duration;
 
-public class DbUtils {
+public final class DbUtils {
+
     public DbUtils() {
         throw new IllegalStateException("Utility class");
     }
@@ -15,7 +16,6 @@ public class DbUtils {
     static {
         BasicDataSource basicDataSource = new BasicDataSource();
 
-        //#todo#0 {ip},{database},{username},{password} 설정
         basicDataSource.setUrl("jdbc:mysql://220.67.216.14:13306/nhn_academy_219");
         basicDataSource.setUsername("nhn_academy_219");
         basicDataSource.setPassword("cP8zjqvd!");
