@@ -10,9 +10,6 @@ public interface ClubRegistrationRepository {
     // 학생-클럽 등록
     int save(Connection connection, String studentId, String clubId);
 
-    // 학생-클럽 삭제
-    int deleteByStudentIdAndClubId(Connection connection, String studentId, String clubId);
-
     // 특정 학생이 가입한 클럽 조회
     List<ClubStudent> findClubStudentsByStudentId(Connection connection, String studentId);
 
@@ -35,5 +32,8 @@ public interface ClubRegistrationRepository {
     List<ClubStudent> findClubStudents_right_excluding_join(Connection connection);
 
     // 아무도 등록하지 않은 학생과, 클럽현황
-    List<ClubStudent> findClubStudents_outher_excluding_join(Connection connection);
+    List<ClubStudent> findClubStudents_outer_excluding_join(Connection connection);
+
+    // 학생-클럽 삭제
+    int deleteByStudentIdAndClubId(Connection connection, String studentId, String clubId);
 }

@@ -342,7 +342,7 @@ class ClubRegistrationRepositoryImplTest {
     @Test
     @Order(7)
     @DisplayName("outher excluding join")
-    void findClubStudents_outher_excluding_join() {
+    void findClubStudents_outer_excluding_join() {
 
         /* mysql은 full outher join을 제공하지 않음 ,  left excluding join + right excluding join union해서 구할수 있음
 
@@ -380,7 +380,7 @@ class ClubRegistrationRepositoryImplTest {
                 new ClubStudent(null,null,"c5","php club")
         );
 
-        List<ClubStudent> actual = clubRegistrationRepository.findClubStudents_outher_excluding_join(connection);
+        List<ClubStudent> actual = clubRegistrationRepository.findClubStudents_outer_excluding_join(connection);
 
         for(ClubStudent clubStudent : actual){
             log.debug("clubStudent:{}",clubStudent);

@@ -33,7 +33,8 @@ public class ClubRepositoryImpl implements ClubRepository {
     public Optional<Club> findByClubId(Connection connection, String clubId) {
         String query = "SELECT club_name, club_created_at FROM jdbc_club WHERE club_id=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setString(1, clubId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -56,7 +57,8 @@ public class ClubRepositoryImpl implements ClubRepository {
         int count = 0;
         String query = "SELECT COUNT(club_id) FROM jdbc_club WHERE club_id=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setString(1, clubId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -74,7 +76,8 @@ public class ClubRepositoryImpl implements ClubRepository {
     public int update(Connection connection, Club club) {
         String query = "UPDATE jdbc_club SET club_name=?, club_created_at=? WHERE club_id=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setString(1, club.getClubName());
             preparedStatement.setTimestamp(2, Timestamp.valueOf(club.getClubCreatedAt()));
             preparedStatement.setString(3, club.getClubId());
@@ -92,7 +95,8 @@ public class ClubRepositoryImpl implements ClubRepository {
     public int deleteByClubId(Connection connection, String clubId) {
         String query = "DELETE FROM jdbc_club WHERE club_id=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
             preparedStatement.setString(1, clubId);
 
             int result = preparedStatement.executeUpdate();
