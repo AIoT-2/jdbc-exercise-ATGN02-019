@@ -21,8 +21,6 @@ import java.util.Random;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 class ClubRegistrationRepositoryImplTest {
 
-    //todo#28 - ClubRegistrationRepositoryImplTest 실항하여 Test Case가 통과할 수 있도록 ClubRegistrationRepositoryImpl 구현합니다.
-
     private static final StudentRepository studentRepository = new StudentRepositoryImpl();
 
     private static final ClubRegistrationRepository clubRegistrationRepository = new ClubRegistrationRepositoryImpl();

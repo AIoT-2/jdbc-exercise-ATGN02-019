@@ -70,8 +70,8 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
     public List<ClubStudent> findClubStudents(Connection connection) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("INNER JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("INNER JOIN jdbc_club_registrations registrations ON registrations.student_id = students.id ");
         query.append("INNER JOIN jdbc_club club ON registrations.club_id = club.club_id ");
         query.append("ORDER BY students.id ASC, club.club_id ASC");
 
@@ -102,10 +102,10 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
     public List<ClubStudent> findClubStudents_left_join(Connection connection) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("LEFT JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("LEFT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
         query.append("LEFT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
-        query.append("ORDER BY students.id ASC, club.club_id ASC");
+        query.append("ORDER BY students.id ASC, registrations.club_id ASC");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query.toString())
         ) {
@@ -134,10 +134,10 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
     public List<ClubStudent> findClubStudents_right_join(Connection connection) {
         StringBuilder query = new StringBuilder();
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("RIGHT JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("RIGHT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
         query.append("RIGHT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
-        query.append("ORDER BY students.id ASC, club.club_id ASC");
+        query.append("ORDER BY club.club_id ASC, students.id ASC");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query.toString())
         ) {
@@ -164,18 +164,16 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
 
     @Override
     public List<ClubStudent> findClubStudents_full_join(Connection connection) {
-        //todo#24 - full join = left join union right join
-        StringBuilder query = new StringBuilder();
+        StringBuilder query = new StringBuilder(); // 정렬은 하지 않는다.
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("LEFT JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("LEFT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
         query.append("LEFT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
         query.append("UNION ");
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("RIGHT JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("RIGHT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
         query.append("RIGHT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
-        query.append("ORDER BY students.id ASC, club.club_id ASC");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query.toString())
         ) {
@@ -202,14 +200,13 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
 
     @Override
     public List<ClubStudent> findClubStudents_left_excluding_join(Connection connection) {
-        //todo#25 - left excluding join
         StringBuilder query = new StringBuilder();
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("LEFT JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("LEFT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
         query.append("LEFT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
-        query.append("WHERE students.id IS NULL AND club.club_id IS NULL ");
-        query.append("ORDER BY students.id ASC, club.club_id ASC");
+        query.append("WHERE club.club_id IS NULL ");
+        query.append("ORDER BY students.id ASC");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query.toString())
         ) {
@@ -236,14 +233,13 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
 
     @Override
     public List<ClubStudent> findClubStudents_right_excluding_join(Connection connection) {
-        //todo#26 - right excluding join
         StringBuilder query = new StringBuilder();
         query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
-        query.append("FROM jdbc_club_registrations registrations ");
-        query.append("RIGHT JOIN jdbc_students students ON registrations.student_id = students.id ");
+        query.append("FROM jdbc_students students ");
+        query.append("LEFT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
         query.append("RIGHT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
-        query.append("WHERE registrations.student_id IS NULL AND registrations.club_id IS NULL ");
-        query.append("ORDER BY students.id ASC, club.club_id ASC");
+        query.append("WHERE students.id IS NULL ");
+        query.append("ORDER BY club.club_id ASC");
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query.toString())
         ) {
@@ -270,8 +266,40 @@ public class ClubRegistrationRepositoryImpl implements ClubRegistrationRepositor
 
     @Override
     public List<ClubStudent> findClubStudents_outer_excluding_join(Connection connection) {
-        //todo#27 - outer_excluding_join = left excluding join union right excluding join
-        return Collections.emptyList();
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
+        query.append("FROM jdbc_students students ");
+        query.append("LEFT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
+        query.append("LEFT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
+        query.append("WHERE club.club_id IS NULL ");
+        query.append("UNION ");
+        query.append("SELECT students.id AS studentId, students.name AS studentName, club.club_id AS clubId, club.club_name AS clubName ");
+        query.append("FROM jdbc_students students ");
+        query.append("LEFT JOIN jdbc_club_registrations registrations ON students.id = registrations.student_id ");
+        query.append("RIGHT JOIN jdbc_club club ON registrations.club_id = club.club_id ");
+        query.append("WHERE students.id IS NULL ");
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query.toString())
+        ) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            List<ClubStudent> clubStudentList = new LinkedList<>();
+            while (resultSet.next()) {
+                String studentId = resultSet.getString("studentId");
+                String studentName = resultSet.getString("studentName");
+                String clubId = resultSet.getString("clubId");
+                String clubName = resultSet.getString("clubName");
+
+                ClubStudent clubStudent = new ClubStudent(studentId, studentName, clubId, clubName);
+                log.debug("{}", clubStudent);
+                clubStudentList.add(clubStudent);
+            }
+            resultSet.close();
+            return clubStudentList;
+        } catch (SQLException e) {
+            log.error("{}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
