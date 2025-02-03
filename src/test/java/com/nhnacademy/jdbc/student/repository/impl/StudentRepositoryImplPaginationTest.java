@@ -39,7 +39,7 @@ class StudentRepositoryImplPaginationTest {
         for (int i = 1; i <= 101; i++) {
             String id = "student" + i;
             String name = "학생" + i;
-            Student.GENDER gender = i % 2 == 0 ? Student.GENDER.M : Student.GENDER.F;
+            Student.Gender gender = i % 2 == 0 ? Student.Gender.M : Student.Gender.F;
             Student student = new Student(id, name, gender, intIterator.next());
 
             studentRepository.save(connection, student);
@@ -66,13 +66,13 @@ class StudentRepositoryImplPaginationTest {
         //ai 추가하기
         Page<Student> studentPage = studentRepository.findAll(connection, page, 10);
         for (Student student : studentPage.getContent()) {
-            log.debug("student:{}", student);
+            log.debug("student: {}", student);
         }
         Assertions.assertEquals(rows, studentPage.getContent().size());
     }
 
     // Arguments.of(page, rowCount), 11 page의 rowCount =1
-    private static Stream<? extends Arguments> paginationArguments() {
+    private static Stream<Arguments> paginationArguments() {
         return Stream.of(
                 Arguments.of(1, 10),
                 Arguments.of(2, 10),

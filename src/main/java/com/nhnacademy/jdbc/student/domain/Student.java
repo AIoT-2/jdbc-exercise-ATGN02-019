@@ -5,25 +5,25 @@ import java.util.Objects;
 
 public class Student {
 
-    public enum GENDER{
-        M,F
+    public enum Gender {
+        M, F
     }
 
     private final String id;
+
     private final String name;
-    private final GENDER gender;
+
+    private final Gender gender;
+
     private final Integer age;
+
     private final LocalDateTime createdAt;
 
-    public Student(String id, String name, GENDER gender, int age) {
-        this.id = id;
-        this.name = name;
-        this.gender = gender;
-        this.age = age;
-        this.createdAt = LocalDateTime.now();
+    public Student(String id, String name, Gender gender, int age) {
+        this(id, name, gender, age, LocalDateTime.now());
     }
 
-    public Student(String id, String name, GENDER gender, int age , LocalDateTime createdAt) {
+    public Student(String id, String name, Gender gender, int age, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.gender = gender;
@@ -39,7 +39,7 @@ public class Student {
         return name;
     }
 
-    public GENDER getGender() {
+    public Gender getGender() {
         return gender;
     }
 
@@ -56,7 +56,10 @@ public class Student {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Student that = (Student) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && gender == that.gender && Objects.equals(age, that.age);
+        return Objects.equals(id, that.id)
+                && Objects.equals(name, that.name)
+                && gender == that.gender
+                && Objects.equals(age, that.age);
     }
 
     @Override

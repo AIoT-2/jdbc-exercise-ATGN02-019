@@ -23,5 +23,4 @@ public interface StudentRepository {
 
     //todo#3 [추가] 페이징처리된 결과를 반환 합니다.
     Page<Student> findAll(Connection connection, int page, int pageSize);
-    
 }
